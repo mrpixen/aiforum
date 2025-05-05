@@ -5,19 +5,16 @@ import { authenticate, isAdmin, isModerator } from '../middleware/auth';
 const router = Router();
 
 // Public routes
-router.get('/', (req, res) => {
-  res.json({ message: 'Get all threads' });
-});
-
-router.get('/:id', (req, res) => ThreadController.getThreadById(req, res));
+router.get('/', ThreadController.getAllThreads);
+router.get('/:id', ThreadController.getThreadById);
 
 // Protected routes (authenticated users)
-router.post('/', authenticate, (req, res) => ThreadController.createThread(req, res));
-router.put('/:id', authenticate, (req, res) => ThreadController.updateThread(req, res));
-router.delete('/:id', authenticate, (req, res) => ThreadController.deleteThread(req, res));
+router.post('/', authenticate, ThreadController.createThread);
+router.put('/:id', authenticate, ThreadController.updateThread);
+router.delete('/:id', authenticate, ThreadController.deleteThread);
 
 // Admin/Moderator routes
-router.put('/:id/lock', authenticate, isModerator, (req, res) => ThreadController.updateThread(req, res));
-router.put('/:id/pin', authenticate, isModerator, (req, res) => ThreadController.updateThread(req, res));
+router.put('/:id/lock', authenticate, isModerator, ThreadController.lockThread);
+router.put('/:id/pin', authenticate, isModerator, ThreadController.pinThread);
 
 export default router; 

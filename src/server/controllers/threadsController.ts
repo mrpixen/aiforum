@@ -264,4 +264,50 @@ export class ThreadController {
       }
     }
   }
+
+  static async lockThread(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const thread = await threadRepository.findOne({ where: { id }, relations: ['user'] });
+      if (!thread) {
+        throw new AppError('Thread not found', 404);
+      }
+      if (!req.user || req.user.role !== 'admin') {
+        throw new AppError('Not authorized', 403);
+      }
+      thread.isLocked = !thread.isLocked;  // Toggle lock status
+      await threadRepository.save(thread);
+      res.json({ message: 'Thread locked status updated', thread });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({ message: error.message });
+      } else {
+        console.error('Error locking thread:', error);
+        res.status(500).json({ message: 'An error occurred' });
+      }
+    }
+  }
+
+  static async pinThread(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const thread = await threadRepository.findOne({ where: { id }, relations: ['user'] });
+      if (!thread) {
+        throw new AppError('Thread not found', 404);
+      }
+      if (!req.user || req.user.role !== 'admin') {
+        throw new AppError('Not authorized', 403);
+      }
+      thread.isPinned = !thread.isPinned;  // Toggle pinned status
+      await threadRepository.save(thread);
+      res.json({ message: 'Thread pinned status updated', thread });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({ message: error.message });
+      } else {
+        console.error('Error pinning thread:', error);
+        res.status(500).json({ message: 'An error occurred' });
+      }
+    }
+  }
 } 

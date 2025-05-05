@@ -54,13 +54,13 @@ export const AppDataSource = new DataSource({
   password: 'Somethinglmao',
   database: 'forum',
   schema: 'public',
-  synchronize: true,
+  synchronize: false,
   logging: process.env.NODE_ENV === 'development',
   entities: [User, Category, Thread, Post, Tag, Reaction, Notification],
   migrations: ['src/server/migrations/*.ts'],
   subscribers: ['src/server/subscribers/*.ts'],
-  dropSchema: true, // This will drop all tables and recreate them
-  migrationsRun: false // Don't run migrations automatically
+  dropSchema: false,
+  migrationsRun: false
 });
 
 // Initialize the database and create default categories

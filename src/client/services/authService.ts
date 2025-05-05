@@ -24,14 +24,14 @@ export interface AuthResponse {
 class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     const response = await api.post<AuthResponse>('/auth/login', credentials);
-    const { token, user } = response.data;
+    const { token } = response.data;
     localStorage.setItem('token', token);
     return response.data;
   }
 
   async register(data: RegisterData): Promise<AuthResponse> {
     const response = await api.post<AuthResponse>('/auth/register', data);
-    const { token, user } = response.data;
+    const { token } = response.data;
     localStorage.setItem('token', token);
     return response.data;
   }
@@ -64,4 +64,5 @@ class AuthService {
   }
 }
 
-export default new AuthService(); 
+const authService = new AuthService();
+export default authService; 

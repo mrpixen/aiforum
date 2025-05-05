@@ -131,7 +131,6 @@ export class ReactionController {
         throw new AppError('User not authenticated', 401);
       }
 
-      // Find reaction
       const reaction = await reactionRepository.findOne({
         where: {
           post: { id: postId },
@@ -144,10 +143,8 @@ export class ReactionController {
         throw new AppError('Reaction not found', 404);
       }
 
-      // Remove reaction
       await reactionRepository.remove(reaction);
 
-      // Update post reaction count
       const post = reaction.post;
       post.reactionCount = Math.max(0, (post.reactionCount || 0) - 1);
       await postRepository.save(post);
@@ -166,4 +163,41 @@ export class ReactionController {
       }
     }
   }
-} 
+
+  static async createReaction(req: Request, res: Response) {
+    try {
+      const { postId, type } = req.body;
+      const userId = req.user?.id;
+
+      if (!userId) {
+        throw new AppError('User not authenticated', 401);
+      }
+
+      const post = await postRepository.findOne({ where: { id: postId } });
+      if (!post) {
+        throw new AppError('Post not found', 404);
+      }
+
+      const user = await userRepository.findOne({ where: { id: userId } });
+      if (!user) {
+        throw new AppError('User not found', 404);
+      }
+
+      const reaction = new Reaction();
+      reaction.post = post;
+      reaction.user = user;
+      reaction.type = type;
+
+      await reactionRepository.save(reaction);
+
+      res.status(201).json({ message: 'Reaction created successfully', reaction });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({ message: error.message });
+      } else {
+        console.error('Error creating reaction:', error);
+        res.status(500).json({ message: 'An error occurred' });
+      }
+    }
+  }
+}

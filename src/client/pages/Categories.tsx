@@ -24,8 +24,10 @@ const Categories: React.FC = () => {
     const fetchCategories = async () => {
       try {
         const response = await api.get<Category[]>('/api/categories');
+        console.log('API response:', response.data);
         setCategories(response.data);
       } catch (err) {
+        console.error('Error fetching categories:', err);
         setError('Failed to load categories');
       } finally {
         setLoading(false);
@@ -47,29 +49,33 @@ const Categories: React.FC = () => {
     <div className="categories-container">
       <h1>Categories</h1>
       <div className="categories-grid">
-        {categories.map((category) => (
-          <div key={category.id} className="category-card">
-            <h2>{category.name}</h2>
-            <p>{category.description}</p>
-            <div className="category-stats">
-              <span>{category.threadCount} threads</span>
-              {category.lastThread && (
-                <div className="last-thread">
-                  <span>Latest: </span>
-                  <Link to={`/thread/${category.lastThread.id}`}>
-                    {category.lastThread.title}
-                  </Link>
-                  <span className="thread-date">
-                    {new Date(category.lastThread.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-              )}
+        {categories.length > 0 ? (
+          categories.map((category) => (
+            <div key={category.id} className="category-card">
+              <h2>{category.name}</h2>
+              <p>{category.description}</p>
+              <div className="category-stats">
+                <span>{category.threadCount ?? 0} threads</span>
+                {category.lastThread && (
+                  <div className="last-thread">
+                    <span>Latest: </span>
+                    <Link to={`/thread/${category.lastThread.id}`}>
+                      {category.lastThread.title}
+                    </Link>
+                    <span className="thread-date">
+                      {new Date(category.lastThread.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>No categories found.</p>
+        )}
       </div>
     </div>
   );
 };
 
-export default Categories; 
+export default Categories;

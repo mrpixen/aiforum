@@ -11,8 +11,6 @@ router.get('/posts/:postId', ReactionController.getPostReactions);
 router.post('/posts/:postId', authenticate, ReactionController.addReaction);
 router.delete('/posts/:postId', authenticate, ReactionController.removeReaction);
 
-router.post('/', (req, res) => {
-  res.json({ message: 'Create reaction' });
-});
+router.post('/', authenticate, ReactionController.createReaction);
 
 export default router; 

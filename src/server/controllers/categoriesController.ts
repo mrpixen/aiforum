@@ -3,6 +3,7 @@ import { AppDataSource } from '../config/database';
 import { Category } from '../models/Category';
 import { AppError } from '../middleware/errorHandler';
 import { validate } from 'class-validator';
+import { Thread } from '../models/Thread';
 
 const categoryRepository = AppDataSource.getRepository(Category);
 
@@ -10,14 +11,24 @@ export class CategoryController {
   static async getAllCategories(req: Request, res: Response) {
     try {
       const categories = await categoryRepository.find({
-        relations: ['threads', 'parent', 'children'],
+        select: ['id', 'name', 'description'],  // Only select essential fields
         order: {
           order: 'ASC',
           name: 'ASC'
         }
       });
 
-      res.json(categories);
+      const categoriesWithDetails = await Promise.all(categories.map(async (category) => {
+        const threadCount = await AppDataSource.getRepository(Thread).count({ where: { category: { id: category.id } } });
+        const lastThread = await AppDataSource.getRepository(Thread).findOne({
+          where: { category: { id: category.id } },
+          order: { createdAt: 'DESC' },  // Assuming we want the most recent thread
+          select: ['id', 'title', 'createdAt']
+        });
+        return { ...category, threadCount, lastThread };
+      }));
+
+      res.json(categoriesWithDetails);
     } catch (error) {
       console.error('Error fetching categories:', error);
       res.status(500).json({

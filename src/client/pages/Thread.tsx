@@ -1,24 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
+import io from 'socket.io-client';
 import '../styles/Thread.css';
 
-interface Post {
-  id: string;
-  content: string;
-  createdAt: string;
-  author: {
-    id: string;
-    username: string;
-  };
-  reactions: {
-    type: string;
-    count: number;
-  }[];
-}
-
-interface Thread {
+interface ThreadData {
   id: string;
   title: string;
   content: string;
@@ -34,21 +21,50 @@ interface Thread {
   posts: Post[];
 }
 
+interface Post {
+  id: string;
+  threadId: string;
+  content: string;
+  createdAt: string;
+  author: {
+    id: string;
+    username: string;
+  };
+  reactions: {
+    type: string;
+    count: number;
+  }[];
+}
+
+const postsPerPage = 10;  // Define a default value for posts per page
+
 const Thread: React.FC = () => {
+  console.log('Thread component mounted for ID:', useParams<{ id: string }>()?.id);
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { user } = useAuth();
-  const [thread, setThread] = useState<Thread | null>(null);
+  const [thread, setThread] = useState<ThreadData | null>(null);
   const [newPost, setNewPost] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [page, setPage] = useState(1);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editedContent, setEditedContent] = useState<string>('');
+  const socket = useRef<any>(null);
 
   useEffect(() => {
+    socket.current = io('http://localhost:4000');
     const fetchThread = async () => {
       try {
-        const response = await api.get<Thread>(`/threads/${id}`);
-        setThread(response.data);
+        const response = await api.get(`/threads/${id}?page=${page}&limit=${postsPerPage}`);
+        if (response.data) {
+          setThread(response.data);
+        } else {
+          console.error('Unexpected API response format:', response);
+          setThread(null);
+          setError('Unexpected API response format');
+        }
       } catch (err) {
+        console.error('Failed to load thread:', err);
         setError('Failed to load thread');
       } finally {
         setLoading(false);
@@ -56,7 +72,24 @@ const Thread: React.FC = () => {
     };
 
     fetchThread();
-  }, [id]);
+
+    socket.current.on('newPost', (newPostData: Post) => {
+      if (newPostData.threadId === id) {
+        setThread(prev => prev ? { ...prev, posts: [...prev.posts, newPostData] } : null);
+      }
+    });
+
+    socket.current.on('newReaction', (updatedPost: Post) => {
+      if (thread) {
+        setThread(prev => prev ? {
+          ...prev,
+          posts: prev.posts.map(p => p.id === updatedPost.id ? updatedPost : p)
+        } : null);
+      }
+    });
+
+    return () => socket.current.disconnect();
+  }, [id, page, thread]);
 
   const handlePostSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +112,6 @@ const Thread: React.FC = () => {
   const handleReaction = async (postId: string, type: string) => {
     try {
       await api.post(`/posts/${postId}/reactions`, { type });
-      // Update the thread state with the new reaction count
       setThread(prev => {
         if (!prev) return null;
         return {
@@ -102,6 +134,29 @@ const Thread: React.FC = () => {
     } catch (err) {
       setError('Failed to add reaction');
     }
+  };
+
+  const handleEditPost = (post: Post) => {
+    setEditingPostId(post.id);
+    setEditedContent(post.content);
+  };
+
+  const handleUpdatePost = async (postId: string) => {
+    try {
+      const response = await api.put(`/posts/${postId}`, { content: editedContent });
+      setThread(prev => prev ? {
+        ...prev,
+        posts: prev.posts.map(p => p.id === postId ? response.data : p)
+      } : null);
+      setEditingPostId(null);
+      setEditedContent('');
+    } catch (err) {
+      setError('Failed to update post');
+    }
+  };
+
+  const loadMorePosts = () => {
+    setPage(prev => prev + 1);
   };
 
   if (loading) {
@@ -137,12 +192,18 @@ const Thread: React.FC = () => {
           <div key={post.id} className="post">
             <div className="post-header">
               <span className="post-author">{post.author.username}</span>
-              <span className="post-date">
-                {new Date(post.createdAt).toLocaleDateString()}
-              </span>
+              <span className="post-date">{new Date(post.createdAt).toLocaleDateString()}</span>
             </div>
             <div className="post-content">
-              <p>{post.content}</p>
+              {editingPostId === post.id ? (
+                <textarea
+                  value={editedContent}
+                  onChange={(e) => setEditedContent(e.target.value)}
+                  placeholder="Edit your post..."
+                />
+              ) : (
+                <p>{post.content}</p>
+              )}
             </div>
             <div className="post-reactions">
               {post.reactions.map(reaction => (
@@ -154,9 +215,16 @@ const Thread: React.FC = () => {
                   {reaction.type} ({reaction.count})
                 </button>
               ))}
+              {post.author.id === user?.id && !editingPostId && (
+                <button onClick={() => handleEditPost(post)}>Edit</button>
+              )}
+              {editingPostId === post.id && (
+                <button onClick={() => handleUpdatePost(post.id)}>Save Edit</button>
+              )}
             </div>
           </div>
         ))}
+        <button onClick={loadMorePosts}>Load More</button>
       </div>
 
       {user && (

@@ -1,0 +1,74 @@
+.categories-container {
+  padding: 2rem;
+}
+
+.categories-container h1 {
+  color: #2c3e50;
+  margin-bottom: 2rem;
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.category-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+}
+
+.category-card h2 {
+  margin: 0 0 1rem 0;
+  color: #333;
+}
+
+.category-card p {
+  color: #666;
+  margin: 0 0 1.5rem 0;
+}
+
+.category-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.last-thread {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.last-thread a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.last-thread a:hover {
+  text-decoration: underline;
+}
+
+.thread-date {
+  color: #999;
+  font-size: 0.8rem;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 4px;
+  text-align: center;
+  margin: 2rem 0;
+} 

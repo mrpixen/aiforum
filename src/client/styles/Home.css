@@ -1,0 +1,167 @@
+.home-page {
+  padding: 2rem 0;
+}
+
+.hero {
+  text-align: center;
+  padding: 4rem 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 3rem;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.primary-button,
+.secondary-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.primary-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.primary-button:hover {
+  background-color: #0056b3;
+}
+
+.secondary-button {
+  background-color: transparent;
+  color: #007bff;
+  border: 1px solid #007bff;
+}
+
+.secondary-button:hover {
+  background-color: #e9ecef;
+}
+
+.featured-categories,
+.recent-threads {
+  margin-bottom: 3rem;
+}
+
+.featured-categories h2,
+.recent-threads h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.category-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s;
+}
+
+.category-card:hover {
+  transform: translateY(-2px);
+}
+
+.category-card h3 {
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.category-card p {
+  color: #666;
+  margin: 0;
+}
+
+.thread-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.thread-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.thread-header {
+  margin-bottom: 1rem;
+}
+
+.thread-title {
+  font-size: 1.2rem;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  margin-right: 1rem;
+}
+
+.thread-title:hover {
+  color: #007bff;
+}
+
+.thread-category {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.thread-category a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.thread-category a:hover {
+  text-decoration: underline;
+}
+
+.thread-meta {
+  display: flex;
+  gap: 1rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.thread-author a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.thread-author a:hover {
+  text-decoration: underline;
+}
+
+.thread-stats {
+  color: #666;
+}
+
+.thread-time {
+  color: #666;
+} 
